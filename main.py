@@ -5,16 +5,14 @@ from math import *
 
 # Initialize
 timer = Timer()
-
+redtime = Timer()
+greentime = Timer()
 color_sensor_reactions = ColorSensor('E')
 motor_pair = MotorPair('C','D')
 hub = PrimeHub()
-
-# not used yet
-#color_sensor_track = ColorSensor('F')
-# distance_sensor = DistanceSensor('B')
-# left_motor = Motor('C')
-# right_motor = Motor('D')
+matrix = hub.light_matrix
+left_motor = Motor('C')
+right_motor = Motor('D')
 
 def beep(amount):
     for i in range(amount):
@@ -22,26 +20,7 @@ def beep(amount):
 
 def wait(seconds):
     wait_for_seconds(seconds)
-
-#Force Push Hover
-# Use force sensor to go
-"""
-# Kept for reference
-def hover(distance=30, duration=15):
-    timer.reset()
-    beep(1)
-    while (timer.now() <= duration):
-        if (distance_sensor.get_distance_cm() == None) or (distance_sensor.get_distance_cm() >= distance):
-            motor_pair.set_default_speed(20)
-            motor_pair.start()
-        else:
-            motor_pair.set_default_speed(-20)
-            motor_pair.start()
-    wait(0.5)
-    motor_pair.stop()
-    wait(0.1)
-    beep(2)
-"""
+    
 
 #get rgb calibration
 def calibrateSensor(sensor):
@@ -102,115 +81,98 @@ def calibrateSensor(sensor):
     #print(int(avg))
     return red, green, yellow, blue, violet, black, white
 
-def isColor(colorVal, getColor):
-    if colorVal[0]-50 <= getColor[0] <= colorVal[0]+50:
-        if colorVal[1]-50 <= getColor[1] <= colorVal[1]+50:
-            if colorVal[2]-50 <= getColor[2] <= colorVal[2]+50:
-                if colorVal[3]-50 <= getColor[3] <= colorVal[3]+50:
+# If red is sensed by light sensor, the robot's
+# default speed will go down by 1.5 times.
+def redDetected():
+    redtime.reset()
+    beep(1)
+    base = motor_pair.get_default_speed()
+    while (redtime.now() < 2):
+        matrix.show_image('SAD')
+        #!!!!!!!!!!having issues updating spped!!!!!!!!!!!!
+        #motor_pair.set_default_speed(1)
+        #motor_pair.set_default_speed(int(base / 1.5))
+        motor_pair.start(0)
+    motor_pair.set_default_speed(base)
+
+# If green is sensed by light sensor, the robot's
+# default speed will go up by 1.5 times.
+def greenDetected():
+    greentime.reset()
+    beep(1)
+    base = motor_pair.get_default_speed()
+    while (greentime.now() < 2):
+        matrix.show_image('HAPPY')
+        #!!!!!!!!!!having issues updating spped!!!!!!!!!!!!
+        #motor_pair.set_default_speed(3)
+        #motor_pair.set_default_speed(int(base * 1.5))
+        motor_pair.start(4)
+    motor_pair.set_default_speed(base)
+
+# create '!' on matrix
+def showCaution():
+    hub.light_matrix.set_pixel(2, 0)
+    hub.light_matrix.set_pixel(2, 1)
+    hub.light_matrix.set_pixel(2, 2)
+    hub.light_matrix.set_pixel(2, 4)
+
+# If yellow is sensed by light sensor, the robot's
+# default speed will go up by 1.5 times.
+def yellowDetected():
+    base = motor_pair.get_default_speed()
+    showCaution()
+    #!!!!!!!!!!Need to make rotation a little faster and wider!!!!!!!!!!!!
+    left_motor.run_for_rotations(0.25,base*-2)
+    right_motor.run_for_rotations(0.25,base*2)
+    motor_pair.set_default_speed(base)
+
+def isColor(colorVal, getColor, numRange):
+    if colorVal[0]-numRange <= getColor[0] <= colorVal[0]+numRange:
+        if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
+            if colorVal[2]-numRange <= getColor[2] <= colorVal[2]+numRange:
+                if colorVal[3]-numRange <= getColor[3] <= colorVal[3]+numRange:
                     return True
     else:
         return False
 
-def isYellow(colorVal, getColor):
-    if colorVal[1]-50 <= getColor[1] <= colorVal[1]+75:
-        if colorVal[2]-50 <= getColor[2] <= colorVal[2]+50:
+def isYellow(colorVal, getColor, numRange):
+    if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
+        if colorVal[2]-numRange <= getColor[2] <= colorVal[2]+numRange:
             return True
     else:
         return False
 
-def main(red, green, yellow, blue, violet, black, white, duration=20, midLight=50):
+def main(red, green, yellow, blue, violet, black, white, duration=10, midLight=50):
     timer.reset()
     beep(1)
     while (timer.now() < duration):
-        #motor_pair.start(1)
-        if isColor(red, color_sensor_reactions.get_rgb_intensity()):
+        motor_pair.start(2)
+        if isColor(red, color_sensor_reactions.get_rgb_intensity(), 80):
             print("red")
-            #wait(0.5)
-        elif isColor(green, color_sensor_reactions.get_rgb_intensity()):
+            redDetected()
+            #wait(0.1)
+        elif isColor(green, color_sensor_reactions.get_rgb_intensity(), 80):
             print("green")
-            #wait(0.5)
-        elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity()):
+            greenDetected()
+            #wait(0.1)
+        elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity(), 80):
             print("yellow")
-            #wait(0.5)
-        elif isColor(blue, color_sensor_reactions.get_rgb_intensity()):
+            yellowDetected()
+            #wait(0.1)
+        elif isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
             print("blue")
-            #wait(0.5)
-        elif isColor(violet, color_sensor_reactions.get_rgb_intensity()):
+            wait(0.1)
+        elif isColor(violet, color_sensor_reactions.get_rgb_intensity(), 60):
             print("violet")
-            #wait(0.5)
-        elif isColor(black, color_sensor_reactions.get_rgb_intensity()):
+            wait(0.1)
+        elif isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
             print("black")
-            wait(0.5)
+            wait(0.1)
         else:
             print("white")
-            #wait(0.5)
+            wait(0.1)
     
-    #motor_pair.stop()
-
-
-#Line Follow
-#Assumes the midLight value is halfway between the reflections of “line” and “not line” to follow a line for duration seconds, and then stops.
-"""
-def lineFollow(duration=15, midLight=50):
-    timer.reset()
-    beep(1)
-    while (timer.now() < duration):
-        if color_sensor_track.get_reflected_light() < midLight:
-            #follow on outside. try to stay in midlight
-            right_motor.stop()
-            left_motor.set_default_speed(-30)
-            left_motor.start()
-        elif color_sensor_track.get_reflected_light() > midLight:
-            left_motor.stop()
-            right_motor.set_default_speed(30)
-            right_motor.start()
-        else:
-            motor_pair.set_default_speed(30)
-            motor_pair.start()
-    left_motor.stop()
-    right_motor.stop()
     motor_pair.stop()
-
-    # Present each colored brick to the Color Sensor and observe what happens; it will detect each color for 2 seconds
-    while timer.now() < 2:
-        color = color_sensor_reactions.wait_for_new_color()
-        if color == 'blue':
-            left_motor.run_for_rotations(1)
-        elif color == 'yellow':
-            right_motor.run_for_rotations(1)
-"""
-"""
-
-    # This will use the reflected value of the colors to set the motor speed (yellow is approximately 80% and violet 60%)
-while True:
-    color = color_sensor_reactions.wait_for_new_color()
-    percentage = color_sensor_reactions.get_reflected_light()
-    if color == 'blue':
-        motor_pair.run_for_rotations(1, percentage)
-    elif color == 'yellow':
-        while timer.now() < 2:
-            motor_pair.set_default_speed(75)
-"""
-"""
-def reset_speed():
-    motor_pair.set_default_speed(50)
-
-#oreientation sensor program
-while True:
-    orientation = hub.motion_sensor.wait_for_new_orientation()
-    angle = abs(hub.motion_sensor.get_pitch_angle()) * 2
-    #Shows happy brighter depending on posistion
-    hub.light_matrix.show_image('HAPPY', angle)
-
-
-    if orientation == 'front':
-        hub.light_matrix.show_image('ASLEEP')
-        app.start_sound('Snoring')
-    elif orientation == 'up':
-        hub.light_matrix.show_image('HAPPY')
-        app.start_sound('Triumph')
-
-"""
 
 red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions)
 main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white)
