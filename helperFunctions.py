@@ -44,7 +44,7 @@ def yellowDetected():
 
 # If violet is detected by the light sensor, a 
 # counter will be started and increased storing 
-# lap apon next violet sense.
+# lap upon next violet sense.
 def raceTimer():
     counter = 0
     lap1 = 0
