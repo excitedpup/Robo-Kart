@@ -17,7 +17,7 @@ def redDetected():
     base = motors.get_default_speed()
     matrix.show_image('SAD')
     if base >= 20:
-        motors.set_default_speed(base / 1.5)
+        motors.set_default_speed(int(base / 1.5))
 
 # If green is sensed by light sensor, the robot's
 # default speed will go up by 1.5 times.
@@ -25,7 +25,7 @@ def greenDetected():
     base = motors.get_default_speed()
     matrix.show_image('HAPPY')
     if base <= 60:
-        motors.set_default_speed(base * 1.5)
+        motors.set_default_speed(int(base * 1.5))
 
 # create '!' on matrix
 def showCaution():
@@ -34,8 +34,8 @@ def showCaution():
     hub.light_matrix.set_pixel(2, 2)
     hub.light_matrix.set_pixel(2, 4)
 
-# If yellow is sensed by light sensor, the robot's
-# default speed will go up by 1.5 times.
+# If yellow is sensed by light sensor, the robot
+# will lose traction for a quick rotation of the wheel
 def yellowDetected():
     base = motors.get_default_speed()
     showCaution()
