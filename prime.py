@@ -136,7 +136,7 @@ def blueDetected():
     else:
         waterSpeed = int(base/2)
 
-    while colorLeft.get_color() != 'white' or colorRight.get_color() != 'white':
+    while colorRight.get_color() != 'white':
         #Boundry detected and if going fast "hits" the boundary, stops, and adjusts to get back on track
         if colorRight.get_color() == 'black':
             if fast:
@@ -196,21 +196,20 @@ def raceTimer(time):
 
 # force sensor should try to avoid object when sensing them ahead of it
 # ********** NOT TESTED YET ***********
-def hover(distance=30):
+def hover(distance=20):
     base = motor_pair.get_default_speed()
 
-    # Honk Honk
-    beep(1)
-    wait(0.3)
-    beep(1)
-    wait(0.3)
-    beep(1)
+    # # Honk Honk Honk
+    # beep(3)
 
     left_motor.start(-(100))
-    wait(0.1)    # Might have to switch these values
+    wait(0.3)    # Might have to switch these values
     left_motor.stop()
+    motor_pair.start(steering=0, speed=base)
+    wait(0.4)
+    motor_pair.stop()
     right_motor.start(50)
-    wait(0.4)# Might have to switch these values
+    wait(0.5)# Might have to switch these values
     right_motor.stop()
     motor_pair.start(steering=0, speed=base)
 
@@ -341,6 +340,14 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
     base = 35
 
     while (timer.now() < duration):
+        print(distance_sensor.get_distance_cm())
+        if distance_sensor.get_distance_cm() is None:
+            pass
+        elif distance_sensor.get_distance_cm() <= 30:
+            print(distance_sensor.get_distance_cm())
+            print("It got here")
+            hover(30)
+
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
             if isColor(red, color_sensor_reactions.get_rgb_intensity(), 80):
@@ -379,13 +386,6 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
         elif isColor(black, colorRight.get_rgb_intensity(), 40):
             turnLeft()
             print("black")
-
-        if distance_sensor.get_distance_cm() == None:
-            pass
-        elif distance_sensor.get_distance_cm() <= 30:
-            print(distance_sensor.get_distance_cm())
-            print("It got here")
-            hover(30)
 
     motor_pair.stop()
     if lap1<lap2 and lap1<lap2:
