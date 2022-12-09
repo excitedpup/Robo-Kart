@@ -173,6 +173,16 @@ def turnLeft(base = 35):
     while isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
         motor_pair.start(steering=steer, speed=base)
 
+def testTurn():
+    motor_pair_start(35)
+
+    while(True):
+        if colorLeft.get_color() == 'black':
+            turnRight()
+        elif colorRight.get_color() == 'black':
+            turnLeft()
+
+testTurn()
 # If violet is detected by the light sensor, a
 # counter will be started and increased storing
 # lap upon next violet sense.
