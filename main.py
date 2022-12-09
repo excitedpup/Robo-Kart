@@ -3,6 +3,8 @@ from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair
 from spike.control import wait_for_seconds, Timer
 from math import *
 
+from calibrateSensor import beep, wait, calibrateSensor
+
 # Initialize
 timer = Timer()
 racetimer = Timer()
@@ -12,6 +14,7 @@ hub = PrimeHub()
 matrix = hub.light_matrix
 left_motor = Motor('C')
 right_motor = Motor('D')
+distance_sensor =  DistanceSensor('F')
 
 counter = 0
 lap1 = 0
@@ -19,67 +22,6 @@ lap2 = 0
 lap3 = 0
 
 
-def beep(amount):
-    for i in range(amount):
-        hub.speaker.beep()
-
-def wait(seconds):
-    wait_for_seconds(seconds)
-
-#get rgb calibration
-def calibrateSensor(sensor):
-    beep(2)
-    # Put the color sensor directly above the red
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    red = sensor.get_rgb_intensity()
-    print(red)
-    beep(1)
-    # Put the color sensor directly above the green
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    green = sensor.get_rgb_intensity()
-    print(green)
-    beep(1)
-    # Put the color sensor directly above the yellow
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    yellow = sensor.get_rgb_intensity()
-    print(yellow)
-    beep(1)
-    # Put the color sensor directly above the blue
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    blue = sensor.get_rgb_intensity()
-    print(blue)
-    beep(1)
-    # Put the color sensor directly above the violet
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    violet = sensor.get_rgb_intensity()
-    print(violet)
-    beep(1)
-    # Put the color sensor directly above the black
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    black = sensor.get_rgb_intensity()
-    print(black)
-    beep(1)
-    # Put the color sensor directly above the white
-    # Press left button
-    hub.left_button.wait_until_pressed()
-    wait(0.5)
-    white = sensor.get_rgb_intensity()
-    print(white)
-    beep(1)
-    beep(5)
-    return red, green, yellow, blue, violet, black, white
 
 # If red is sensed by light sensor, the robot's
 # default speed will go down by 1.5 times.
@@ -154,9 +96,33 @@ def raceTimer(time):
     elif counter == 3:
         print("more than 3 laps")
 
+# force sensor should try to avoid object when sensing them ahead of it
+# ********** NOT TESTED YET ***********
+def hover(distance=30):
+    base = motor_pair.get_default_speed()
+    
+    # Honk Honk
+    beep(1, hub)
+    wait(0.3)
+    beep(1, hub)
+    wait(0.3)
+    beep(1, hub)
+    
+    while True:
+        if (distance_sensor.get_distance_cm() == None) or (distance_sensor.get_distance_cm() >= distance):
+            left_motor.start(-(100))
+            wait(0.1)    # Might have to switch these values
+            left_motor.stop()
+            right_motor.start(50)
+            wait(0.4)   # Might have to switch these values
+            right_motor.stop()
+        else:
+            motor_pair.start(steering=0, speed=base)
+            break
 
-
-
+# This detects the color by taking in the color value it sensed and compares it to 
+#  the color values upon calebration and 
+# returns True if the value is in the number range
 def isColor(colorVal, getColor, numRange):
     if colorVal[0]-numRange <= getColor[0] <= colorVal[0]+numRange:
         if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
@@ -166,6 +132,8 @@ def isColor(colorVal, getColor, numRange):
     else:
         return False
 
+# This is different from the isColor method, because the yellow seemed to not always work.
+# ****** WE SHOULD RECHECK THIS *******
 def isYellow(colorVal, getColor, numRange):
     if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
         if colorVal[2]-numRange <= getColor[2] <= colorVal[2]+numRange:
@@ -177,7 +145,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     timer.reset()
     racetimer.reset()
     print(racetimer.now())
-    beep(1)
+    beep(1, hub)
     base = motor_pair.set_default_speed(35)
     motor_pair.start(steering=0, speed=base)
 
@@ -228,5 +196,5 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     print(fastestLap)
     
 
-red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions)
+red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions, hub)
 main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
