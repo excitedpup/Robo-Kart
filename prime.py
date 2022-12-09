@@ -16,7 +16,7 @@ hub = PrimeHub()
 matrix = hub.light_matrix
 left_motor = Motor('C')
 right_motor = Motor('D')
-#distance_sensor =DistanceSensor('F')
+distance_sensor =DistanceSensor('F')
 
 
 counter = 0
@@ -341,15 +341,16 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
     base = 35
 
     while (timer.now() < duration):
-
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
             if isColor(red, color_sensor_reactions.get_rgb_intensity(), 80):
                 print("red")
+                colorStatus = True
                 colorTime = timer.now() + 2
                 redDetected()
             elif isColor(green, color_sensor_reactions.get_rgb_intensity(), 80):
                 print("green")
+                colorStatus = True
                 colorTime = timer.now() + 2
                 greenDetected()
             elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity(), 80):
@@ -395,3 +396,13 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
         fastestLap = lap3
     print('Fastest Lap is:')
     print(fastestLap)
+
+#red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions)
+red = (315, 84, 123, 407)
+green = (136, 207, 137, 360)
+yellow = (613, 522, 318, 1016)
+blue = (76, 153, 259, 321)
+violet = (83, 79, 138, 207)
+black = (47, 51, 52, 111)
+white = (601, 607, 608, 1011)
+main2(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
