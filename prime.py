@@ -125,8 +125,7 @@ def yellowDetected(duration, direction, pause):
     motor_pair.start(steering=0, speed=base)
     hub.light_matrix.off()
 
-def blueDetected():
-    base = motor_pair.get_default_speed()
+def blueDetected(base):
     #Goes at 3/4 current speed if going fast and half speed if going slow
     fast = False
     waterSpeed = 0
@@ -161,7 +160,7 @@ def blueDetected():
         else:
             motor_pair.start(steering=0, speed=waterSpeed)
 
-    motor_pair.set_default_speed(base)
+    motor_pair.set_default_speed(35)
 
 # If violet is detected by the light sensor, a
 # counter will be started and increased storing
@@ -269,83 +268,16 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     global lap1
     global lap2
     global lap3
-    fastestLap = 0
-
-    while (timer.now() < duration):
-        if isColor(red, color_sensor_reactions.get_rgb_intensity(), 80):
-            print("red")
-            redDetected()
-            #wait(0.1)
-        elif isColor(green, color_sensor_reactions.get_rgb_intensity(), 80):
-            print("green")
-            greenDetected()
-            #wait(0.1)
-        elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity(), 80):
-            print("yellow")
-            yellowDetected(2, 100, .1)
-            #wait(0.1)
-        elif isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
-            print("blue")
-            wait(0.1)
-        elif isColor(violet, color_sensor_reactions.get_rgb_intensity(), 60):
-            print("violet")
-            #print(racetimer.now())
-            # fastestLap declaration here can be taken out I think!!!
-            fastestLap = raceTimer(racetimer.now())
-            counter = counter + 1
-            wait(1) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
-        elif isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
-            print("black")
-            wait(0.1)
-        else:
-            print("white")
-            wait(0.1)
-        if distance_sensor.get_distance_cm() == None:
-            pass
-        elif distance_sensor.get_distance_cm() <= 30:
-            print(distance_sensor.get_distance_cm())
-            print("It got here")
-            hover(30)
-
-    motor_pair.stop()
-    if lap1<lap2 and lap1<lap2:
-        fastestLap = lap1
-    elif lap2<lap1 and lap2<lap3:
-        fastestLap = lap2
-    else:
-        fastestLap = lap3
-    print('Fastest Lap is:')
-    print(fastestLap)
-
-
-#red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions)
-#main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
-
-
-def main2(red, green, yellow, blue, violet, black, white, duration=15):
-    timer.reset()
-    racetimer.reset()
-    print(racetimer.now())
-    beep(1)
-    base = motor_pair.set_default_speed(35)
-    motor_pair.start(steering=0, speed=base)
-
-    global counter
-    global lap1
-    global lap2
-    global lap3
     global colorStatus
     global colorTime
+    currentSpeed = 35
     fastestLap = 0
     base = 35
 
     while (timer.now() < duration):
-        print(distance_sensor.get_distance_cm())
         if distance_sensor.get_distance_cm() is None:
             pass
         elif distance_sensor.get_distance_cm() <= 30:
-            print(distance_sensor.get_distance_cm())
-            print("It got here")
             hover(30)
 
         if not colorStatus:
@@ -354,23 +286,26 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
                 print("red")
                 colorStatus = True
                 colorTime = timer.now() + 2
+                currentSpeed = int(base / 2)
                 redDetected()
             elif isColor(green, color_sensor_reactions.get_rgb_intensity(), 80):
                 print("green")
                 colorStatus = True
                 colorTime = timer.now() + 2
+                currentSpeed = int(base * 1.5)
                 greenDetected()
             elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity(), 80):
                 print("yellow")
                 yellowDetected(2, 100, .1)
-            elif isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
-                print("blue")
-                blueDetected()
         else:
             if colorTime < timer.now():
+                currentSpeed = 35
                 colorStatus = False
                 hub.light_matrix.off()
 
+        if isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
+                print("blue")
+                blueDetected(currentSpeed)
 
         if isColor(violet, color_sensor_reactions.get_rgb_intensity(), 60):
             print("violet")
@@ -405,4 +340,4 @@ blue = (76, 153, 259, 321)
 violet = (83, 79, 138, 207)
 black = (47, 51, 52, 111)
 white = (601, 607, 608, 1011)
-main2(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
+main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
