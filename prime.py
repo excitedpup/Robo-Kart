@@ -163,26 +163,6 @@ def blueDetected():
 
     motor_pair.set_default_speed(base)
 
-def turnRight(base = 35):
-    steer = random.randint(20,30)
-    while isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
-        motor_pair.start(steering=steer, speed=base)
-
-def turnLeft(base = 35):
-    steer = -(random.randint(20,30))
-    while isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
-        motor_pair.start(steering=steer, speed=base)
-
-def testTurn():
-    motor_pair_start(35)
-
-    while(True):
-        if colorLeft.get_color() == 'black':
-            turnRight()
-        elif colorRight.get_color() == 'black':
-            turnLeft()
-
-testTurn()
 # If violet is detected by the light sensor, a
 # counter will be started and increased storing
 # lap upon next violet sense.
@@ -242,6 +222,33 @@ def isColor(colorVal, getColor, numRange):
                     return True
     else:
         return False
+
+def turnRight(base = 50):
+    steer = random.randint(80,90)
+    while colorLeft.get_color() == 'black':
+        motor_pair.start(steering=steer, speed=base)
+        print(steer)
+        wait(.3)
+
+def turnLeft(base = 50):
+    steer = -(random.randint(80,90))
+    while colorRight.get_color() == 'black':
+        motor_pair.start(steering=steer, speed=base)
+        print(steer)
+        wait(.3)
+
+def testTurn():
+    motor_pair.start(steering = 0, speed=35)
+
+    while(True):
+        if colorLeft.get_color() == 'black':
+            turnRight()
+        elif colorRight.get_color() == 'black':
+            turnLeft()
+        else:
+            motor_pair.start(steering = 0, speed=35)
+
+testTurn()
 
 def isYellow(colorVal, getColor, numRange):
     if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
