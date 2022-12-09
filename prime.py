@@ -142,21 +142,21 @@ def blueDetected():
             if fast:
                 motor_pair.stop()
                 wait_for_seconds(2)
-                #turnLeft()
+                turnRight(base)
                 waterSpeed = int(base/2)
                 fast = False
             else:
-                #turnLeft()
+                turnLeft(base)
                 motor_pair.start(steering=0, speed=int(base/2))
         elif colorLeft.get_color() == 'black':
             if fast:
                 motor_pair.stop()
                 wait_for_seconds(2)
-                #turnRight()
+                turnRight(base)
                 waterSpeed = int(base/2)
                 fast = False
             else:
-                #turnRight()
+                turnLeft(base)
                 motor_pair.start(steering=0, speed=int(base/2))
         else:
             motor_pair.start(steering=0, speed=waterSpeed)
@@ -229,6 +229,7 @@ def turnRight(base = 50):
         motor_pair.start(steering=steer, speed=base)
         print(steer)
         wait(.3)
+    motor_pair.start(steering=0, speed=35)
 
 def turnLeft(base = 50):
     steer = -(random.randint(80,90))
@@ -236,6 +237,7 @@ def turnLeft(base = 50):
         motor_pair.start(steering=steer, speed=base)
         print(steer)
         wait(.3)
+    motor_pair.start(steering=0, speed=35)
 
 def testTurn():
     motor_pair.start(steering = 0, speed=35)
@@ -248,7 +250,6 @@ def testTurn():
         else:
             motor_pair.start(steering = 0, speed=35)
 
-testTurn()
 
 def isYellow(colorVal, getColor, numRange):
     if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
@@ -356,6 +357,7 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
                 yellowDetected(2, 100, .1)
             elif isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
                 print("blue")
+                blueDetected()
         else:
             if colorTime < timer.now():
                 colorStatus = False
@@ -370,7 +372,11 @@ def main2(red, green, yellow, blue, violet, black, white, duration=15):
             counter = counter + 1
             wait(1) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
 
-        if isColor(black, color_sensor_reactions.get_rgb_intensity(), 40):
+        if isColor(black, colorLeft.get_rgb_intensity(), 40):
+            turnRight()
+            print("black")
+        elif isColor(black, colorRight.get_rgb_intensity(), 40):
+            turnLeft()
             print("black")
 
         if distance_sensor.get_distance_cm() == None:
