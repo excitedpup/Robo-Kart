@@ -125,6 +125,8 @@ def yellowDetected(duration, direction, pause):
     motor_pair.start(steering=0, speed=base)
     hub.light_matrix.off()
 
+# If blue is detected, simulate the robot going into a puddle and either hydroplaning if going fast
+# or heavily slowing down if going slow
 def blueDetected(base):
     #Goes at 3/4 current speed if going fast and half speed if going slow
     fast = False
@@ -194,12 +196,8 @@ def raceTimer(time):
         print("more than 3 laps")
 
 # force sensor should try to avoid object when sensing them ahead of it
-# ********** NOT TESTED YET ***********
-def hover(distance=20):
+def isObstacle(distance=20):
     base = motor_pair.get_default_speed()
-
-    # # Honk Honk Honk
-    # beep(3)
 
     left_motor.start(-(100))
     wait(0.3)    # Might have to switch these values
@@ -237,18 +235,8 @@ def turnLeft(base = 50):
         wait(.3)
     motor_pair.start(steering=0, speed=35)
 
-def testTurn():
-    motor_pair.start(steering = 0, speed=35)
-
-    while(True):
-        if colorLeft.get_color() == 'black':
-            turnRight()
-        elif colorRight.get_color() == 'black':
-            turnLeft()
-        else:
-            motor_pair.start(steering = 0, speed=35)
-
-
+# The variants of the first and last values in the range were too drastic to properly
+# detect, this function just allows for the simpler detection of yellow.
 def isYellow(colorVal, getColor, numRange):
     if colorVal[1]-numRange <= getColor[1] <= colorVal[1]+numRange:
         if colorVal[2]-numRange <= getColor[2] <= colorVal[2]+numRange:
@@ -278,7 +266,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
         if distance_sensor.get_distance_cm() is None:
             pass
         elif distance_sensor.get_distance_cm() <= 30:
-            hover(30)
+            isObstacle(30)
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
