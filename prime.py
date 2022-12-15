@@ -1,6 +1,6 @@
 # This is the file we have to copy/paste into Spike Prime
 # This is our Main.py file containing our code
-from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair
+from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair, ForceSensor
 from spike.control import wait_for_seconds, Timer
 from math import *
 import random
@@ -16,8 +16,8 @@ hub = PrimeHub()
 matrix = hub.light_matrix
 left_motor = Motor('C')
 right_motor = Motor('D')
-distance_sensor =DistanceSensor('F')
-
+distance_sensor = DistanceSensor('F')
+force_sensor = ForceSensor('E')
 
 counter = 0
 lap1 = 0
@@ -243,6 +243,12 @@ def isYellow(colorVal, getColor, numRange):
             return True
     else:
         return False
+    
+def isBumped():
+    if force_sensor.is_pressed():
+        base = motor_pair.get_default_speed()
+        matrix.show_image('ANGRY')
+        motor_pair.start(steering=0, speed=int(base * 1.5))
 
 def main(red, green, yellow, blue, violet, black, white, duration=15):
     timer.reset()
