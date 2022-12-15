@@ -116,12 +116,12 @@ def yellowDetected(duration, direction, pause):
     base = motor_pair.get_default_speed()
     showCaution()
     for _ in range(duration):
-        left_motor.start(-(direction))
-        wait(pause)
-        left_motor.stop()
         right_motor.start(direction)
         wait(pause)
         right_motor.stop()
+        left_motor.start(-(direction))
+        wait(pause)
+        left_motor.stop()
     motor_pair.start(steering=0, speed=base)
     hub.light_matrix.off()
 
