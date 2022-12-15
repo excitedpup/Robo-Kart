@@ -1,6 +1,6 @@
 # This is the file we have to copy/paste into Spike Prime
 # This is our Main.py file containing our code
-from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair
+from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair, ForceSensor
 from spike.control import wait_for_seconds, Timer
 from math import *
 import random
@@ -247,7 +247,7 @@ def isYellow(colorVal, getColor, numRange):
 def gotBumped():
     base = motor_pair.get_default_speed()
     matrix.show_image('ANGRY')
-    motor_pair.start(steering=0, speed=int(base *1.5))
+    motor_pair.start(steering=0, speed=int(base * 1.5))
 
 def main(red, green, yellow, blue, violet, black, white, duration=15):
     timer.reset()
@@ -263,6 +263,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     global lap3
     global colorStatus
     global colorTime
+    bumpTime = 0
     currentSpeed = 35
     fastestLap = 0
     base = 35
@@ -272,14 +273,6 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
             pass
         elif distance_sensor.get_distance_cm() <= 20:
             isObstacle(30)
-
-        if force_sensor.is_pressed():
-            gotBumped()
-            bumpTime = timer.now() + 2
-        else:
-            if bumpTime < timer.now():
-                currentSpeed = 35
-                hub.light_matrix.off()
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
@@ -298,6 +291,12 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
             elif isYellow(yellow, colorLeft.get_rgb_intensity(), 80) or isYellow(yellow, colorRight.get_rgb_intensity(), 80):
                 print("yellow")
                 yellowDetected(2, 100, .1)
+            elif force_sensor.is_pressed():
+                print("bump")
+                colorStatus = True
+                colorTime = timer.now() + 1
+                currentSpeed = int(base * 1.5)
+                gotBumped()
         else:
             if colorTime < timer.now():
                 currentSpeed = 35
