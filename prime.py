@@ -175,16 +175,19 @@ def raceTimer(time):
     global lap3
 
     if counter == 0:
-        lap1 = time
-        print('lap1')
-        print(lap1)
+        racetimer.reset()
+        print('Start of lap 1')
     elif counter == 1:
+        lap1 = time
+        print('End of lap 1')
+        print(lap1)
+    elif counter == 2:
         lap2 = time - lap1
         print('lap1')
         print(lap1)
         print('lap2')
         print(lap2)
-    elif counter == 2:
+    elif counter == 3:
         lap3 = time - lap1 - lap2
         print('lap1')
         print(lap1)
@@ -192,22 +195,22 @@ def raceTimer(time):
         print(lap2)
         print('lap3')
         print(lap3)
-    elif counter == 3:
-        print("more than 3 laps")
+    elif counter == 4:
+        print("More than 3 laps")
 
 # force sensor should try to avoid object when sensing them ahead of it
 def isObstacle(distance=20):
     base = motor_pair.get_default_speed()
 
-    left_motor.start(-(100))
+    right_motor.start(95)
     wait(0.3)    # Might have to switch these values
-    left_motor.stop()
+    right_motor.stop()
     motor_pair.start(steering=0, speed=base)
     wait(0.4)
     motor_pair.stop()
-    right_motor.start(50)
+    left_motor.start(-(45))
     wait(0.5)# Might have to switch these values
-    right_motor.stop()
+    left_motor.stop()
     motor_pair.start(steering=0, speed=base)
 
 def isColor(colorVal, getColor, numRange):
@@ -261,14 +264,13 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     global lap3
     global colorStatus
     global colorTime
-    bumpTime = 0
     currentSpeed = 35
     fastestLap = 0
     base = 35
     violetStatus = False
     violetTime = 0
 
-    while (timer.now() < duration):
+    while (counter < 4):
         tempDist = distance_sensor.get_distance_cm()
         if tempDist is not None:
             if tempDist <= 30:
@@ -328,7 +330,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
             print("black")
 
     motor_pair.stop()
-    if lap1<lap2 and lap1<lap2:
+    if lap1<lap2 and lap1<lap3:
         fastestLap = lap1
     elif lap2<lap1 and lap2<lap3:
         fastestLap = lap2
