@@ -223,7 +223,6 @@ def turnRight(base = 50):
     steer = random.randint(80,90)
     while colorLeft.get_color() == 'black':
         motor_pair.start(steering=steer, speed=base)
-        print(steer)
         wait(.3)
     motor_pair.start(steering=0, speed=35)
 
@@ -231,7 +230,6 @@ def turnLeft(base = 50):
     steer = -(random.randint(80,90))
     while colorRight.get_color() == 'black':
         motor_pair.start(steering=steer, speed=base)
-        print(steer)
         wait(.3)
     motor_pair.start(steering=0, speed=35)
 
@@ -267,12 +265,14 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     currentSpeed = 35
     fastestLap = 0
     base = 35
+    violetStatus = False
+    violetTime = 0
 
     while (timer.now() < duration):
-        if distance_sensor.get_distance_cm() is None:
-            pass
-        elif distance_sensor.get_distance_cm() <= 20:
-            isObstacle(30)
+        tempDist = distance_sensor.get_distance_cm()
+        if tempDist is not None:
+            if tempDist <= 30:
+                isObstacle(30)
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
@@ -303,22 +303,27 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
                 colorStatus = False
                 hub.light_matrix.off()
 
-        if isColor(blue, colorLeft.get_rgb_intensity(), 50) or isColor(blue, colorRight.get_rgb_intensity(), 50):
+        if isColor(blue, colorLeft.get_rgb_intensity(), 30) or isColor(blue, colorRight.get_rgb_intensity(), 30):
                 print("blue")
                 blueDetected(currentSpeed)
 
-        if isColor(violet, colorLeft.get_rgb_intensity(), 30) or isColor(violet, colorRight.get_rgb_intensity(), 30):
-            print("violet")
-            #print(racetimer.now())
-            # fastestLap declaration here can be taken out I think!!!
-            fastestLap = raceTimer(racetimer.now())
-            counter = counter + 1
-            wait(1.5) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
+        if not violetStatus:
+            if isColor(violet, colorLeft.get_rgb_intensity(), 30) or isColor(violet, colorRight.get_rgb_intensity(), 30):
+                print("violet")
+                #print(racetimer.now())
+                # fastestLap declaration here can be taken out I think!!!
+                fastestLap = raceTimer(racetimer.now())
+                counter = counter + 1
+                violetTime = timer.now()+10
+                violetStatus=True
+        else:
+            if violetTime < timer.now():
+                violetStatus=False
 
-        if isColor(black, colorLeft.get_rgb_intensity(), 50):
+        if isColor(black, colorLeft.get_rgb_intensity(), 40):
             turnRight()
             print("black")
-        elif isColor(black, colorRight.get_rgb_intensity(), 50):
+        elif isColor(black, colorRight.get_rgb_intensity(), 40):
             turnLeft()
             print("black")
 
@@ -333,11 +338,11 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     print(fastestLap)
 
 #red, green, yellow, blue, violet, black, white = calibrateSensor(colorLeft)
-red = (315, 84, 123, 407)
-green = (136, 207, 137, 360)
-yellow = (613, 522, 318, 1016)
-blue = (76, 153, 259, 321)
-violet = (83, 79, 138, 207)
-black = (47, 51, 52, 111)
-white = (601, 607, 608, 1011)
-main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
+red = (352, 87, 130, 455)
+green =  (143, 217, 141, 380)
+yellow = (627, 535, 311, 992)
+blue = (83, 166, 281, 353)
+violet = (77, 71, 126, 193)
+black = (47, 48, 48, 106)
+white = (624, 622, 604, 989)
+main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=180)
