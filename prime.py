@@ -1,6 +1,6 @@
 # This is the file we have to copy/paste into Spike Prime
 # This is our Main.py file containing our code
-from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair, ForceSensor
+from spike import PrimeHub,ColorSensor, DistanceSensor, Motor, MotorPair
 from spike.control import wait_for_seconds, Timer
 from math import *
 import random
@@ -15,8 +15,7 @@ hub = PrimeHub()
 matrix = hub.light_matrix
 left_motor = Motor('C')
 right_motor = Motor('D')
-distance_sensor = DistanceSensor('F')
-force_sensor = ForceSensor('E')
+distance_sensor =DistanceSensor('F')
 
 
 counter = 0
@@ -175,16 +174,19 @@ def raceTimer(time):
     global lap3
 
     if counter == 0:
-        lap1 = time
-        print('lap1')
-        print(lap1)
+        racetimer.reset()
+        print('Start of lap 1')
     elif counter == 1:
+        lap1 = time
+        print('End of lap 1')
+        print(lap1)
+    elif counter == 2:
         lap2 = time - lap1
         print('lap1')
         print(lap1)
         print('lap2')
         print(lap2)
-    elif counter == 2:
+    elif counter == 3:
         lap3 = time - lap1 - lap2
         print('lap1')
         print(lap1)
@@ -192,8 +194,8 @@ def raceTimer(time):
         print(lap2)
         print('lap3')
         print(lap3)
-    elif counter == 3:
-        print("more than 3 laps")
+    elif counter == 4:
+        print("More than 3 laps")
 
 # force sensor should try to avoid object when sensing them ahead of it
 def isObstacle(distance=20):
@@ -242,11 +244,6 @@ def isYellow(colorVal, getColor, numRange):
     else:
         return False
 
-def gotBumped():
-    base = motor_pair.get_default_speed()
-    matrix.show_image('ANGRY')
-    motor_pair.start(steering=0, speed=int(base * 1.5))
-
 def main(red, green, yellow, blue, violet, black, white, duration=15):
     timer.reset()
     racetimer.reset()
@@ -261,18 +258,15 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     global lap3
     global colorStatus
     global colorTime
-    bumpTime = 0
     currentSpeed = 35
     fastestLap = 0
     base = 35
-    violetStatus = False
-    violetTime = 0
 
     while (timer.now() < duration):
-        tempDist = distance_sensor.get_distance_cm()
-        if tempDist is not None:
-            if tempDist <= 30:
-                isObstacle(30)
+        if distance_sensor.get_distance_cm() is None:
+            pass
+        elif distance_sensor.get_distance_cm() <= 20:
+            isObstacle(30)
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
@@ -291,39 +285,28 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
             elif isYellow(yellow, colorLeft.get_rgb_intensity(), 80) or isYellow(yellow, colorRight.get_rgb_intensity(), 80):
                 print("yellow")
                 yellowDetected(2, 100, .1)
-            elif force_sensor.is_pressed():
-                print("bump")
-                colorStatus = True
-                colorTime = timer.now() + 1
-                currentSpeed = int(base * 1.5)
-                gotBumped()
         else:
             if colorTime < timer.now():
                 currentSpeed = 35
                 colorStatus = False
                 hub.light_matrix.off()
 
-        if isColor(blue, colorLeft.get_rgb_intensity(), 30) or isColor(blue, colorRight.get_rgb_intensity(), 30):
+        if isColor(blue, colorLeft.get_rgb_intensity(), 50) or isColor(blue, colorRight.get_rgb_intensity(), 50):
                 print("blue")
                 blueDetected(currentSpeed)
 
-        if not violetStatus:
-            if isColor(violet, colorLeft.get_rgb_intensity(), 20) or isColor(violet, colorRight.get_rgb_intensity(), 20):
-                print("violet")
-                #print(racetimer.now())
-                # fastestLap declaration here can be taken out I think!!!
-                fastestLap = raceTimer(racetimer.now())
-                counter = counter + 1
-                violetTime = timer.now()+10
-                violetStatus=True
-        else:
-            if violetTime < timer.now():
-                violetStatus=False
+        if isColor(violet, colorLeft.get_rgb_intensity(), 30) or isColor(violet, colorRight.get_rgb_intensity(), 30):
+            print("violet")
+            #print(racetimer.now())
+            # fastestLap declaration here can be taken out I think!!!
+            fastestLap = raceTimer(racetimer.now())
+            counter = counter + 1
+            wait(1.5) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
 
-        if isColor(black, colorLeft.get_rgb_intensity(), 40):
+        if isColor(black, colorLeft.get_rgb_intensity(), 50):
             turnRight()
             print("black")
-        elif isColor(black, colorRight.get_rgb_intensity(), 40):
+        elif isColor(black, colorRight.get_rgb_intensity(), 50):
             turnLeft()
             print("black")
 
@@ -338,11 +321,11 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     print(fastestLap)
 
 #red, green, yellow, blue, violet, black, white = calibrateSensor(colorLeft)
-red = (352, 87, 130, 455)
-green =(143, 217, 141, 380)
-yellow = (627, 535, 311, 992)
-blue = (83, 166, 281, 353)
-violet = (77, 71, 126, 193)
-black = (47, 48, 48, 106)
-white = (624, 622, 604, 989)
-main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=180)
+red = (315, 84, 123, 407)
+green = (136, 207, 137, 360)
+yellow = (613, 522, 318, 1016)
+blue = (76, 153, 259, 321)
+violet = (83, 79, 138, 207)
+black = (47, 51, 52, 111)
+white = (601, 607, 608, 1011)
+main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=60)
