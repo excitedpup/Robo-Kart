@@ -308,7 +308,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
                 blueDetected(currentSpeed)
 
         if not violetStatus:
-            if isColor(violet, colorLeft.get_rgb_intensity(), 30) or isColor(violet, colorRight.get_rgb_intensity(), 30):
+            if isColor(violet, colorLeft.get_rgb_intensity(), 20) or isColor(violet, colorRight.get_rgb_intensity(), 20):
                 print("violet")
                 #print(racetimer.now())
                 # fastestLap declaration here can be taken out I think!!!
@@ -339,7 +339,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
 
 #red, green, yellow, blue, violet, black, white = calibrateSensor(colorLeft)
 red = (352, 87, 130, 455)
-green =  (143, 217, 141, 380)
+green =(143, 217, 141, 380)
 yellow = (627, 535, 311, 992)
 blue = (83, 166, 281, 353)
 violet = (77, 71, 126, 193)
