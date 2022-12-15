@@ -176,19 +176,23 @@ def raceTimer(time):
 
     if counter == 0:
         racetimer.reset()
+        matrix.write('1')
         print('Start of lap 1')
     elif counter == 1:
         lap1 = time
+        matrix.write('2')
         print('End of lap 1')
         print(lap1)
     elif counter == 2:
         lap2 = time - lap1
+        matrix.write('3')
         print('lap1')
         print(lap1)
         print('lap2')
         print(lap2)
     elif counter == 3:
         lap3 = time - lap1 - lap2
+        matrix.write('Finish!')
         print('lap1')
         print(lap1)
         print('lap2')
