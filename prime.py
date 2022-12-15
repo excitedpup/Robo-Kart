@@ -15,7 +15,8 @@ hub = PrimeHub()
 matrix = hub.light_matrix
 left_motor = Motor('C')
 right_motor = Motor('D')
-distance_sensor =DistanceSensor('F')
+distance_sensor = DistanceSensor('F')
+force_sensor = ForceSensor('E')
 
 
 counter = 0
@@ -243,6 +244,11 @@ def isYellow(colorVal, getColor, numRange):
     else:
         return False
 
+def gotBumped():
+    base = motor_pair.get_default_speed()
+    matrix.show_image('ANGRY')
+    motor_pair.start(steering=0, speed=int(base *1.5))
+
 def main(red, green, yellow, blue, violet, black, white, duration=15):
     timer.reset()
     racetimer.reset()
@@ -266,6 +272,14 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
             pass
         elif distance_sensor.get_distance_cm() <= 20:
             isObstacle(30)
+
+        if force_sensor.is_pressed():
+            gotBumped()
+            bumpTime = timer.now() + 2
+        else:
+            if bumpTime < timer.now():
+                currentSpeed = 35
+                hub.light_matrix.off()
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
