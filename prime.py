@@ -116,12 +116,12 @@ def yellowDetected(duration, direction, pause):
     base = motor_pair.get_default_speed()
     showCaution()
     for _ in range(duration):
-        left_motor.start(-(direction))
-        wait(pause)
-        left_motor.stop()
         right_motor.start(direction)
         wait(pause)
         right_motor.stop()
+        left_motor.start(-(direction))
+        wait(pause)
+        left_motor.stop()
     motor_pair.start(steering=0, speed=base)
     hub.light_matrix.off()
 
@@ -199,15 +199,15 @@ def raceTimer(time):
 def isObstacle(distance=20):
     base = motor_pair.get_default_speed()
 
-    left_motor.start(-(100))
+    right_motor.start(95)
     wait(0.3)    # Might have to switch these values
-    left_motor.stop()
+    right_motor.stop()
     motor_pair.start(steering=0, speed=base)
     wait(0.4)
     motor_pair.stop()
-    right_motor.start(50)
+    left_motor.start(-(45))
     wait(0.5)# Might have to switch these values
-    right_motor.stop()
+    left_motor.stop()
     motor_pair.start(steering=0, speed=base)
 
 def isColor(colorVal, getColor, numRange):
