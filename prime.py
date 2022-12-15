@@ -8,7 +8,6 @@ import random
 # Initialize
 timer = Timer()
 racetimer = Timer()
-color_sensor_reactions = ColorSensor('A')
 colorLeft = ColorSensor('A')
 colorRight = ColorSensor('B')
 motor_pair = MotorPair('C','D')
@@ -137,7 +136,7 @@ def blueDetected(base):
     else:
         waterSpeed = int(base/2)
 
-    while colorRight.get_color() != 'white':
+    while colorRight.get_color() != 'white' or colorLeft.get_color() != 'white':
         #Boundry detected and if going fast "hits" the boundary, stops, and adjusts to get back on track
         if colorRight.get_color() == 'black':
             if fast:
@@ -265,24 +264,24 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     while (timer.now() < duration):
         if distance_sensor.get_distance_cm() is None:
             pass
-        elif distance_sensor.get_distance_cm() <= 30:
+        elif distance_sensor.get_distance_cm() <= 20:
             isObstacle(30)
 
         if not colorStatus:
             motor_pair.start(steering=0, speed=base)
-            if isColor(red, color_sensor_reactions.get_rgb_intensity(), 80):
+            if isColor(red, colorLeft.get_rgb_intensity(), 80) or isColor(red, colorRight.get_rgb_intensity(), 80):
                 print("red")
                 colorStatus = True
                 colorTime = timer.now() + 2
                 currentSpeed = int(base / 2)
                 redDetected()
-            elif isColor(green, color_sensor_reactions.get_rgb_intensity(), 80):
+            elif isColor(green, colorLeft.get_rgb_intensity(), 30) or isColor(green, colorRight.get_rgb_intensity(), 30):
                 print("green")
                 colorStatus = True
                 colorTime = timer.now() + 2
                 currentSpeed = int(base * 1.5)
                 greenDetected()
-            elif isYellow(yellow, color_sensor_reactions.get_rgb_intensity(), 80):
+            elif isYellow(yellow, colorLeft.get_rgb_intensity(), 80) or isYellow(yellow, colorRight.get_rgb_intensity(), 80):
                 print("yellow")
                 yellowDetected(2, 100, .1)
         else:
@@ -291,22 +290,22 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
                 colorStatus = False
                 hub.light_matrix.off()
 
-        if isColor(blue, color_sensor_reactions.get_rgb_intensity(), 80):
+        if isColor(blue, colorLeft.get_rgb_intensity(), 50) or isColor(blue, colorRight.get_rgb_intensity(), 50):
                 print("blue")
                 blueDetected(currentSpeed)
 
-        if isColor(violet, color_sensor_reactions.get_rgb_intensity(), 60):
+        if isColor(violet, colorLeft.get_rgb_intensity(), 30) or isColor(violet, colorRight.get_rgb_intensity(), 30):
             print("violet")
             #print(racetimer.now())
             # fastestLap declaration here can be taken out I think!!!
             fastestLap = raceTimer(racetimer.now())
             counter = counter + 1
-            wait(1) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
+            wait(1.5) # CHANGE BACK WHEN YOU STOP LIFTING BOT UP/BOT ABLE TO TRACK FOLLOW
 
-        if isColor(black, colorLeft.get_rgb_intensity(), 40):
+        if isColor(black, colorLeft.get_rgb_intensity(), 50):
             turnRight()
             print("black")
-        elif isColor(black, colorRight.get_rgb_intensity(), 40):
+        elif isColor(black, colorRight.get_rgb_intensity(), 50):
             turnLeft()
             print("black")
 
@@ -320,7 +319,7 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     print('Fastest Lap is:')
     print(fastestLap)
 
-#red, green, yellow, blue, violet, black, white = calibrateSensor(color_sensor_reactions)
+#red, green, yellow, blue, violet, black, white = calibrateSensor(colorLeft)
 red = (315, 84, 123, 407)
 green = (136, 207, 137, 360)
 yellow = (613, 522, 318, 1016)
