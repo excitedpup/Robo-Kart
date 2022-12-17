@@ -203,7 +203,7 @@ def raceTimer(time):
         print("More than 3 laps")
 
 # force sensor should try to avoid object when sensing them ahead of it
-def isObstacle(distance=20):
+def isObstacle():
     base = motor_pair.get_default_speed()
 
     right_motor.start(95)
@@ -259,7 +259,7 @@ def gotBumped():
     motor_pair.start(steering=0, speed=int(base * 1.5))
 
 # Runs all color detection and sensing methods
-def main(red, green, yellow, blue, violet, black, white, duration=15):
+def main(red, green, yellow, blue, violet, black):
     timer.reset()
     racetimer.reset()
     print(racetimer.now())
@@ -347,4 +347,4 @@ def main(red, green, yellow, blue, violet, black, white, duration=15):
     print(fastestLap)
 
 red, green, yellow, blue, violet, black, white = calibrateSensor(colorLeft)
-main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black, white=white, duration=180)
+main(red=red, green=green, yellow=yellow, blue=blue, violet=violet, black=black)
